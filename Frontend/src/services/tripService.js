@@ -1,0 +1,1 @@
+export { getTrips } from './fleetDataService'
