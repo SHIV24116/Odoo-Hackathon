@@ -14,4 +14,8 @@ function ExpenseTable({ expenses }) {
   return <Table title="Other expenses" columns={columns} data={expenses} />
 }
 
+<<<<<<< HEAD
 export default ExpenseTable
+=======
+export default ExpenseTable
+>>>>>>> 570cc98e9f72169d8aee359744c922b443c2483a

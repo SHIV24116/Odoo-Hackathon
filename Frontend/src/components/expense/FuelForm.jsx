@@ -10,4 +10,8 @@ function FuelForm({ vehicles }) {
   return <FormGrid fields={fields} />
 }
 
+<<<<<<< HEAD
 export default FuelForm
+=======
+export default FuelForm
+>>>>>>> 570cc98e9f72169d8aee359744c922b443c2483a
