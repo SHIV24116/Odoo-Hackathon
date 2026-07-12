@@ -35,6 +35,23 @@ button {
   cursor: pointer;
 }
 
+.error-text {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+
+.link-button {
+  background: transparent;
+  border: 0;
+  color: #2563eb;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-align: left;
+}
+
 #root {
   min-height: 100svh;
 }

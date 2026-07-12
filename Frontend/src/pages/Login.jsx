@@ -2,18 +2,31 @@ import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import Button from '../components/common/Button'
 import { useAuth } from '../context/useAuth'
+import { signupUser } from '../services/authService'
 
 function Login() {
   const { isAuthenticated, login } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ email: 'manager@transitops.in', password: 'password', role: 'Fleet Manager' })
+  const [mode, setMode] = useState('login')
+  const [form, setForm] = useState({ name: '', email: '', password: '', roleId: 1 })
+  const [error, setError] = useState('')
 
   if (isAuthenticated) return <Navigate replace to="/dashboard" />
 
   async function handleSubmit(event) {
     event.preventDefault()
-    await login(form)
-    navigate('/dashboard')
+    setError('')
+    try {
+      if (mode === 'signup') {
+        await signupUser(form)
+        setMode('login')
+        return
+      }
+      await login(form)
+      navigate('/dashboard')
+    } catch (err) {
+      setError(err.response?.data?.message || err.message)
+    }
   }
 
   function updateField(event) {
@@ -31,14 +44,16 @@ function Login() {
       </section>
       <section className="login-form-panel">
         <form className="login-card" onSubmit={handleSubmit}>
-          <h2>Sign in to your account</h2>
-          <p>Enter your credentials to continue.</p>
+          <h2>{mode === 'login' ? 'Sign in to your account' : 'Create an account'}</h2>
+          <p>{mode === 'login' ? 'Enter your credentials to continue.' : 'Create a demo user backed by PostgreSQL.'}</p>
+          {mode === 'signup' && <label>Name<input name="name" onChange={updateField} value={form.name} /></label>}
           <label>Email<input name="email" onChange={updateField} type="email" value={form.email} /></label>
           <label>Password<input name="password" onChange={updateField} type="password" value={form.password} /></label>
-          <label>Role<select name="role" onChange={updateField} value={form.role}><option>Fleet Manager</option><option>Dispatcher</option><option>Safety Officer</option><option>Financial Analyst</option></select></label>
-          <div className="form-row between"><label className="check"><input defaultChecked type="checkbox" /> Remember me</label><a href="#forgot">Forgot password?</a></div>
-          <Button type="submit">Sign in</Button>
-          <div className="role-note">Access changes by role: manager, dispatcher, safety, and finance modules.</div>
+          {mode === 'signup' && <label>Role<select name="roleId" onChange={updateField} value={form.roleId}><option value="1">Fleet Manager</option><option value="2">Dispatcher</option><option value="3">Safety Officer</option></select></label>}
+          {error && <p className="error-text">{error}</p>}
+          <Button type="submit">{mode === 'login' ? 'Sign in' : 'Create account'}</Button>
+          <button className="link-button" onClick={() => { setError(''); setMode(mode === 'login' ? 'signup' : 'login') }} type="button">{mode === 'login' ? 'Create account' : 'Back to sign in'}</button>
+          <div className="role-note">Use a real account from the backend auth APIs.</div>
         </form>
       </section>
     </div>

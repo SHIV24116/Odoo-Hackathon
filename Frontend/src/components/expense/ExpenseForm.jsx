@@ -10,8 +10,4 @@ function ExpenseForm({ vehicles }) {
   return <FormGrid fields={fields} />
 }
 
-<<<<<<< HEAD
 export default ExpenseForm
-=======
-export default ExpenseForm
->>>>>>> 570cc98e9f72169d8aee359744c922b443c2483a
