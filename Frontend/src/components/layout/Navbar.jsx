@@ -17,7 +17,7 @@ function Navbar() {
       <div className="topbar-actions">
         <span>Range: all</span>
         <button onClick={handleLogout}>Sign out</button>
-        <div className="avatar">{user?.role?.slice(0, 2).toUpperCase() || 'FM'}</div>
+        <div className="avatar">{user?.role?.name?.slice(0, 2).toUpperCase() || 'FM'}</div>
       </div>
     </header>
   )

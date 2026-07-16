@@ -1,9 +1,17 @@
 const prisma = require("../config/prisma");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const { signToken } = require("../utils/jwt");
+const { isValidEmail, isNonEmptyString } = require("../utils/validators");
+
+const publicUser = ({ password, ...user }) => user;
 
 const signup = async (userData) => {
     const { name, email, password, roleId } = userData;
+    if (!isNonEmptyString(name) || !isValidEmail(email) || !isNonEmptyString(password) || password.length < 8) {
+        throw new Error("Name, a valid email, and a password of at least 8 characters are required");
+    }
+    const role = await prisma.role.findUnique({ where: { id: Number(roleId) } });
+    if (!role) throw new Error("Selected role does not exist");
 
     const existingUser = await prisma.user.findUnique({
         where: { email },
@@ -20,14 +28,15 @@ const signup = async (userData) => {
             name,
             email,
             password: hashedPassword,
-            roleId,
+            roleId: role.id,
         },
+        include: { role: { select: { id: true, name: true } } },
     });
 
     return {
         success: true,
         message: "User registered successfully",
-        user,
+        user: publicUser(user),
     };
 };
 
@@ -36,33 +45,23 @@ const login = async (userData) => {
 
     const user = await prisma.user.findUnique({
         where: { email },
+        include: { role: { select: { id: true, name: true } } },
     });
 
-    if (!user) {
-        throw new Error("Invalid Email");
-    }
+    if (!user) throw new Error("Invalid email or password");
 
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-        throw new Error("Invalid Password");
+        throw new Error("Invalid email or password");
     }
 
-    const token = jwt.sign(
-        {
-            id: user.id,
-            roleId: user.roleId,
-        },
-        process.env.JWT_SECRET,
-        {
-            expiresIn: "24h",
-        }
-    );
+    const token = signToken({ id: user.id, roleId: user.roleId, role: user.role.name });
 
     return {
         success: true,
         token,
-        user,
+        user: publicUser(user),
     };
 };
 

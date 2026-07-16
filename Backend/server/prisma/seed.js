@@ -1,4 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcrypt");
 
 const prisma = new PrismaClient();
 
@@ -66,7 +67,30 @@ async function main() {
     skipDuplicates: true
   });
 
-  console.log("Database seeded successfully!");
+  const managerRole = await prisma.role.findUnique({ where: { name: "Fleet Manager" } });
+  const password = await bcrypt.hash("TransitOps@123", 10);
+  await prisma.user.upsert({
+    where: { email: "manager@transitops.local" },
+    update: { name: "Fleet Manager", password, roleId: managerRole.id },
+    create: { name: "Fleet Manager", email: "manager@transitops.local", password, roleId: managerRole.id },
+  });
+
+  const vehicle = await prisma.vehicle.findUnique({ where: { registrationNo: "MH12AB1234" } });
+  const driver = await prisma.driver.findUnique({ where: { licenseNumber: "DL123456" } });
+  const existingFuelLog = await prisma.fuelLog.findFirst({ where: { vehicleId: vehicle.id, date: new Date("2026-07-01") } });
+  if (!existingFuelLog) {
+    await prisma.fuelLog.create({ data: { vehicleId: vehicle.id, liters: 42, cost: 4200, date: new Date("2026-07-01") } });
+  }
+  const existingExpense = await prisma.expense.findFirst({ where: { vehicleId: vehicle.id, description: "Highway toll" } });
+  if (!existingExpense) {
+    await prisma.expense.create({ data: { vehicleId: vehicle.id, type: "TOLL", amount: 850, description: "Highway toll", date: new Date("2026-07-02") } });
+  }
+  const existingTrip = await prisma.trip.findFirst({ where: { source: "Mumbai", destination: "Pune", vehicleId: vehicle.id, driverId: driver.id } });
+  if (!existingTrip) {
+    await prisma.trip.create({ data: { source: "Mumbai", destination: "Pune", cargoWeight: 500, plannedDistance: 150, status: "COMPLETED", vehicleId: vehicle.id, driverId: driver.id, finalOdometer: 25150, fuelConsumed: 15 } });
+  }
+
+  console.log("Database seeded successfully. Demo login: manager@transitops.local / TransitOps@123");
 }
 
 main()

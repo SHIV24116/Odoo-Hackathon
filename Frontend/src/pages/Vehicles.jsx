@@ -27,7 +27,9 @@ function Vehicles() {
   }, [])
 
   function updateField(event) {
-    setForm((current) => ({ ...current, [event.target.name]: event.target.value }))
+    const { name, value } = event.target
+    const normalizedValue = ['registrationNumber', 'name'].includes(name) ? value.toUpperCase() : value
+    setForm((current) => ({ ...current, [name]: normalizedValue }))
   }
 
   async function handleSubmit(event) {
