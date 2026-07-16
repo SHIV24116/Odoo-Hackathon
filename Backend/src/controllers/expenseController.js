@@ -1,0 +1,10 @@
+const service = require("../services/expenseService");
+const createExpense = async (req, res, next) => { try { res.status(201).json(await service.createExpense(req.body)); } catch (err) { next(err); } };
+const getExpenses = async (req, res, next) => { try { res.json(await service.getExpenses()); } catch (err) { next(err); } };
+const getExpense = async (req, res, next) => { try { res.json(await service.getExpense(req.params.id)); } catch (err) { next(err); } };
+const updateExpense = async (req, res, next) => { try { res.json(await service.updateExpense(req.params.id, req.body)); } catch (err) { next(err); } };
+const deleteExpense = async (req, res, next) => { try { await service.deleteExpense(req.params.id); res.status(204).send(); } catch (err) { next(err); } };
+const createFuelLog = async (req, res, next) => { try { res.status(201).json(await service.createFuelLog(req.body)); } catch (err) { next(err); } };
+const getFuelLogs = async (req, res, next) => { try { res.json(await service.getFuelLogs()); } catch (err) { next(err); } };
+const deleteFuelLog = async (req, res, next) => { try { await service.deleteFuelLog(req.params.id); res.status(204).send(); } catch (err) { next(err); } };
+module.exports = { createExpense, getExpenses, getExpense, updateExpense, deleteExpense, createFuelLog, getFuelLogs, deleteFuelLog };
